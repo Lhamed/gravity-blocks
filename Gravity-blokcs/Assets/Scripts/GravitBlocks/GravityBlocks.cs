@@ -15,23 +15,39 @@ namespace GravityBlocks
         // 블록을 그릴 기준점이 될, [0,0] 점의 World Position
         Vector3 defaultWorldPosition;
 
+        // 블록 한 변의 World 기준 길이 
         float blockEdgeSize = 0;
 
+        // 렌더러들의 집합 
         SpriteRenderer[,] renderSet;
 
         // 인스턴스 생성시에 , Field 의 사이즈를 정한다. 
         public FieldRenderer(int blockColumnCount, int blockRowCount)
         {
             // 블록의 최대 변의 길이를 구해주고 , 꽉차지 않게 95% 만큼 줄여주었다. 
-            blockEdgeSize = CalculateBlockEdgeSize(blockColumnCount, blockRowCount) *  0.95f;
+            blockEdgeSize = CalculateBlockEdgeSize(blockColumnCount, blockRowCount) * 0.95f;
             defaultWorldPosition = Camera.main.ScreenToWorldPoint(Vector3.zero);
 
             renderSet = CreateRenderSet(blockColumnCount, blockRowCount, defaultWorldPosition, blockEdgeSize);
         }
 
-        public void Draw()
+        public void Draw(int[,] fieldData)
         {
+            var inputDataWidth = fieldData.GetLength(0);
+            var inputDataHeight = fieldData.GetLength(1);
 
+            if (inputDataWidth != fieldWidth || inputDataHeight != fieldHeight)
+            {
+                throw new System.Exception("InputFiledDataSizeError");
+            }
+            for (int i = 0; i < inputDataWidth; i++)
+            {
+                for (int j = 0; j < inputDataHeight; j++)
+                {
+                    var index = fieldData[i, j];
+                    renderSet[i, j].color = ConvertIndexToColor(index);
+                }
+            }
         }
 
         SpriteRenderer[,] CreateRenderSet(int column, int row, Vector3 defaultPosition, float blockEdgeSize)
@@ -104,5 +120,33 @@ namespace GravityBlocks
             var whiteSprite = Sprite.Create(whiteTexture, rect, pivot);
             return whiteSprite;
         }
+
+        Color ConvertIndexToColor(int index)
+        {
+            Color resultColor = Color.white;
+            switch (index)
+            {
+                case 0:
+                    resultColor = Color.white;
+                    break;
+                case 1:
+                    resultColor = Color.red;
+                    break;
+                case 2:
+                    resultColor = Color.blue;
+                    break;
+                case 3:
+                    resultColor = Color.green;
+                    break;
+                case 4:
+                    resultColor = Color.yellow;
+                    break;
+                default:
+                    resultColor = Color.black;
+                    break;
+            }
+            return resultColor;
+        }
     }
+
 }
